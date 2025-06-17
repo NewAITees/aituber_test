@@ -2,8 +2,10 @@
 アバター制御システムのユニットテスト
 """
 
-import pytest
 import os
+
+import pytest
+
 from src.avatar.avatar_controller import AvatarController, ExpressionConfig, LipSyncData
 
 
@@ -81,8 +83,8 @@ def test_update_pose(avatar_controller):
     position = (0.0, 1.0, 0.0)
     rotation = (0.0, 0.0, 0.0)
     avatar_controller.update_pose(position, rotation)
-    assert hasattr(avatar_controller, 'current_position')
-    assert hasattr(avatar_controller, 'current_rotation')
+    assert hasattr(avatar_controller, "current_position")
+    assert hasattr(avatar_controller, "current_rotation")
     assert avatar_controller.current_position == position
     assert avatar_controller.current_rotation == rotation
 
@@ -101,4 +103,4 @@ def test_export_animation(avatar_controller, tmp_path):
     output_path = tmp_path / "animation.json"
     avatar_controller.export_animation(str(output_path))
     assert output_path.exists()
-    assert output_path.stat().st_size > 0 
+    assert output_path.stat().st_size > 0

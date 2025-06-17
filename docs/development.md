@@ -187,4 +187,4 @@ pytest --cov=src tests/
 
 - [技術ドキュメント](../technical_document.md)
 - [API仕様書](./api.md)
-- [トラブルシューティングガイド](./troubleshooting.md) 
+- [トラブルシューティングガイド](./troubleshooting.md)

@@ -5,14 +5,14 @@ AITuberシステムのメイン実装
 
 import asyncio
 import json
-from typing import Optional
 from datetime import datetime
 from pathlib import Path
+from typing import Optional
 
-from src.llm.local_llm import LocalLLM
-from src.tts.local_tts import LocalTTS, VoiceConfig
 from src.avatar.avatar_controller import AvatarController, ExpressionConfig
-from src.stream.stream_handler import StreamHandler, ChatMessage
+from src.llm.local_llm import LocalLLM
+from src.stream.stream_handler import ChatMessage, StreamHandler
+from src.tts.local_tts import LocalTTS, VoiceConfig
 
 
 class AITuberSystem:
@@ -25,10 +25,10 @@ class AITuberSystem:
         video_id: str,
         obs_host: str = "localhost",
         obs_port: int = 4455,
-        obs_password: Optional[str] = None,
-        voice_config: Optional[VoiceConfig] = None,
-        expression_config: Optional[ExpressionConfig] = None,
-    ):
+        obs_password: str | None = None,
+        voice_config: VoiceConfig | None = None,
+        expression_config: ExpressionConfig | None = None,
+    ) -> None:
         """
         Args:
             vrm_path: VRMモデルのパス
@@ -133,20 +133,22 @@ class AITuberSystem:
         """
         return {
             "is_running": self.is_running,
-            "last_response_time": self.last_response_time.isoformat() if self.last_response_time else None,
+            "last_response_time": self.last_response_time.isoformat()
+            if self.last_response_time
+            else None,
             "stream_info": self.stream.get_stream_info(),
             "available_expressions": self.avatar.get_available_expressions(),
         }
 
 
-async def main():
+async def main() -> None:
     """メイン関数"""
     # 設定の読み込み
     config_path = Path("config.json")
     if not config_path.exists():
         raise FileNotFoundError("config.json not found")
 
-    with open(config_path) as f:
+    with config_path.open() as f:
         config = json.load(f)
 
     # システムの初期化
@@ -171,4 +173,4 @@ async def main():
 
 
 if __name__ == "__main__":
-    asyncio.run(main()) 
+    asyncio.run(main())

@@ -2,13 +2,15 @@
 システム全体の統合テスト
 """
 
-import pytest
 import asyncio
 import json
+from datetime import datetime
 from pathlib import Path
+
+import pytest
+
 from src.main import AITuberSystem
 from src.stream.stream_handler import ChatMessage
-from datetime import datetime
 
 
 @pytest.fixture
@@ -142,4 +144,4 @@ async def test_full_workflow(system):
     except Exception as e:
         pytest.skip(f"Full workflow test skipped: {e}")
     finally:
-        await system.stop() 
+        await system.stop()

@@ -2,18 +2,20 @@
 配信システムのユニットテスト
 """
 
-import pytest
 import asyncio
 from datetime import datetime
-from src.stream.stream_handler import StreamHandler, ChatMessage
+
+import pytest
+
+from src.stream.stream_handler import ChatMessage, StreamHandler
 
 
 @pytest.fixture
 def stream_handler():
     """StreamHandlerのインスタンス"""
     return StreamHandler(
-        platform="youtube",
         video_id="test_video_id",
+        platform="youtube",
         obs_host="localhost",
         obs_port=4455,
     )
@@ -48,7 +50,7 @@ async def test_connect(stream_handler):
     """接続テスト"""
     try:
         await stream_handler.connect()
-        assert stream_handler.chat is not None
+        assert stream_handler._chat is not None
     except Exception as e:
         pytest.skip(f"Connection test skipped: {e}")
 
@@ -85,8 +87,8 @@ async def test_disconnect(stream_handler):
     try:
         await stream_handler.connect()
         await stream_handler.disconnect()
-        assert stream_handler.chat is None
-        assert stream_handler.obs is None
+        assert stream_handler._chat is None
+        assert not stream_handler._obs_connected
     except Exception as e:
         pytest.skip(f"Disconnect test skipped: {e}")
 
@@ -100,4 +102,4 @@ def test_get_stream_info(stream_handler):
     assert "video_id" in info
     assert "obs_connected" in info
     assert info["platform"] == "youtube"
-    assert info["video_id"] == "test_video_id" 
+    assert info["video_id"] == "test_video_id"

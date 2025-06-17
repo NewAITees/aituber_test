@@ -94,7 +94,7 @@ const response = await aiTuberChat.generateResponse(userMessage);
 class HealthChecker:
     def check_memory_usage(self):
         return psutil.virtual_memory().percent < 85
-    
+
     def check_gpu_status(self):
         # NVIDIA GPU監視
         return subprocess.run(['nvidia-smi']).returncode == 0

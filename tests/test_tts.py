@@ -2,7 +2,10 @@
 TTSシステムのユニットテスト
 """
 
+from unittest.mock import MagicMock, patch
+
 import pytest
+
 from src.tts.local_tts import LocalTTS, VoiceConfig
 
 
@@ -39,8 +42,20 @@ def test_local_tts_initialization():
     assert tts.voice_config is not None
 
 
-def test_text_to_speech():
+@patch("requests.post")
+def test_text_to_speech(mock_post):
     """音声合成のテスト"""
+    # モックレスポンスの設定
+    mock_query_response = MagicMock()
+    mock_query_response.json.return_value = {"speedScale": 1.0}
+    mock_query_response.raise_for_status.return_value = None
+
+    mock_synthesis_response = MagicMock()
+    mock_synthesis_response.content = b"fake audio data"
+    mock_synthesis_response.raise_for_status.return_value = None
+
+    mock_post.side_effect = [mock_query_response, mock_synthesis_response]
+
     tts = LocalTTS()
     audio_data = tts.text_to_speech("こんにちは")
     assert audio_data is not None
@@ -48,8 +63,14 @@ def test_text_to_speech():
     assert len(audio_data) > 0
 
 
-def test_get_speakers():
+@patch("requests.get")
+def test_get_speakers(mock_get):
     """話者一覧取得のテスト"""
+    mock_response = MagicMock()
+    mock_response.json.return_value = [{"name": "ずんだもん", "speaker_uuid": "test"}]
+    mock_response.raise_for_status.return_value = None
+    mock_get.return_value = mock_response
+
     tts = LocalTTS()
     speakers = tts.get_speakers()
     assert speakers is not None
@@ -63,4 +84,4 @@ def test_get_version():
     version = tts.get_version()
     assert version is not None
     assert isinstance(version, str)
-    assert len(version) > 0 
+    assert len(version) > 0

@@ -3,13 +3,15 @@
 Ollamaを使用したローカルLLMの実行と応答生成を担当
 """
 
-from typing import Dict, List, Optional
+from typing import Optional
+
 import ollama
 from pydantic import BaseModel, Field
 
 
 class Message(BaseModel):
     """チャットメッセージのモデル"""
+
     role: str = Field(..., description="メッセージの役割 (system, user, assistant)")
     content: str = Field(..., description="メッセージの内容")
 
@@ -20,10 +22,10 @@ class LocalLLM:
     def __init__(
         self,
         model_name: str = "llama2:7b",
-        system_prompt: Optional[str] = None,
+        system_prompt: str | None = None,
         temperature: float = 0.7,
         max_tokens: int = 1000,
-    ):
+    ) -> None:
         """
         Args:
             model_name: 使用するモデル名
@@ -35,7 +37,7 @@ class LocalLLM:
         self.system_prompt = system_prompt
         self.temperature = temperature
         self.max_tokens = max_tokens
-        self._message_history: List[Message] = []
+        self._message_history: list[Message] = []
 
     def add_message(self, role: str, content: str) -> None:
         """メッセージ履歴に新しいメッセージを追加
@@ -50,9 +52,7 @@ class LocalLLM:
         """メッセージ履歴をクリア"""
         self._message_history.clear()
 
-    def generate_response(
-        self, user_input: str, stream: bool = False
-    ) -> str:
+    def generate_response(self, user_input: str, stream: bool = False) -> str:
         """ユーザー入力に対する応答を生成
 
         Args:
@@ -72,7 +72,7 @@ class LocalLLM:
         # Ollama APIを使用して応答を生成
         response = ollama.chat(
             model=self.model_name,
-            messages=[msg.dict() for msg in self._message_history],
+            messages=[msg.model_dump() for msg in self._message_history],
             stream=stream,
             options={
                 "temperature": self.temperature,
@@ -89,10 +89,10 @@ class LocalLLM:
             self.add_message("assistant", response_text)
             return response_text
 
-    def get_model_info(self) -> Dict:
+    def get_model_info(self) -> dict:
         """現在使用しているモデルの情報を取得
 
         Returns:
             モデル情報を含む辞書
         """
-        return ollama.show(self.model_name) 
+        return ollama.show(self.model_name)

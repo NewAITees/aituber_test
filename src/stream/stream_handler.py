@@ -4,15 +4,18 @@ YouTube/Twitchのチャット取得とOBS統合を担当
 """
 
 import asyncio
-from typing import AsyncGenerator, Dict, Optional
 import json
+from collections.abc import AsyncGenerator
 from datetime import datetime
+from typing import Optional
+
 import pytchat
 from pydantic import BaseModel, Field
 
 
 class ChatMessage(BaseModel):
     """チャットメッセージのモデル"""
+
     author: str = Field(..., description="投稿者名")
     message: str = Field(..., description="メッセージ内容")
     timestamp: datetime = Field(..., description="投稿時刻")
@@ -26,17 +29,23 @@ class StreamHandler:
         self,
         video_id: str,
         platform: str = "youtube",
-        obs_websocket_url: Optional[str] = None,
-    ):
+        obs_host: str = "localhost",
+        obs_port: int = 4455,
+        obs_password: str | None = None,
+    ) -> None:
         """
         Args:
             video_id: 配信ID
             platform: 配信プラットフォーム ("youtube" or "twitch")
-            obs_websocket_url: OBS WebSocketのURL
+            obs_host: OBS WebSocketのホスト
+            obs_port: OBS WebSocketのポート
+            obs_password: OBS WebSocketのパスワード
         """
         self.video_id = video_id
         self.platform = platform
-        self.obs_websocket_url = obs_websocket_url
+        self.obs_host = obs_host
+        self.obs_port = obs_port
+        self.obs_password = obs_password
         self._chat = None
         self._obs_connected = False
 
@@ -97,7 +106,7 @@ class StreamHandler:
             # TODO: OBS WebSocket接続の切断処理を実装
             self._obs_connected = False
 
-    def get_stream_info(self) -> Dict:
+    def get_stream_info(self) -> dict:
         """配信情報を取得
 
         Returns:
@@ -108,4 +117,4 @@ class StreamHandler:
             "platform": self.platform,
             "video_id": self.video_id,
             "obs_connected": self._obs_connected,
-        } 
+        }

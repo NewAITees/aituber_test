@@ -1,0 +1,112 @@
+{
+    "name": "AITuber Python Development",
+    "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
+
+    "containerEnv": {
+        "PYTHONUNBUFFERED": "1",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "UV_CACHE_DIR": "${containerWorkspaceFolder}/.cache/uv",
+        "UV_LINK_MODE": "copy",
+        "UV_PROJECT_ENVIRONMENT": "/home/vscode/.venv",
+        "UV_COMPILE_BYTECODE": "1",
+        "DISPLAY": "${localEnv:DISPLAY}",
+        "WANDB_MODE": "offline"
+    },
+
+    "features": {
+        "ghcr.io/devcontainers/features/common-utils:2": {
+            "configureZshAsDefaultShell": true,
+            "username": "vscode",
+            "userUid": "1000",
+            "userGid": "1000"
+        },
+        "ghcr.io/rocker-org/devcontainer-features/apt-packages:1": {
+            "packages": "curl,wget,git,jq,ca-certificates,build-essential,ripgrep,fd-find,tree,ffmpeg,portaudio19-dev,libasound2-dev"
+        },
+        "ghcr.io/va-h/devcontainers-features/uv:1": {
+            "version": "latest",
+            "shellAutocompletion": true
+        },
+        "ghcr.io/devcontainers/features/node:1": {
+            "version": "lts"
+        },
+        "ghcr.io/devcontainers/features/github-cli:1": {}
+    },
+
+    "runArgs": [
+        "--init",
+        "--rm",
+        "--shm-size=2g",
+        "--device=/dev/snd"
+    ],
+
+    "hostRequirements": {
+        "gpu": "optional",
+        "memory": "8gb",
+        "storage": "32gb"
+    },
+
+    "customizations": {
+        "vscode": {
+            "settings": {
+                "python.defaultInterpreterPath": "/home/vscode/.venv/bin/python",
+                "python.terminal.activateEnvironment": false,
+                "editor.formatOnSave": true,
+                "editor.codeActionsOnSave": {
+                    "source.organizeImports": true,
+                    "source.fixAll": true
+                },
+                "files.exclude": {
+                    "**/__pycache__": true,
+                    "**/.pytest_cache": true,
+                    "**/.ruff_cache": true,
+                    "**/.mypy_cache": true
+                },
+                "ruff.importStrategy": "fromEnvironment",
+                "ruff.path": ["/home/vscode/.venv/bin/ruff"],
+                "mypy-type-checker.importStrategy": "fromEnvironment",
+                "mypy-type-checker.path": ["/home/vscode/.venv/bin/mypy"]
+            },
+            "extensions": [
+                "ms-python.python",
+                "ms-python.debugpy",
+                "charliermarsh.ruff",
+                "ms-python.mypy-type-checker",
+                "ms-toolsai.jupyter",
+                "eamodio.gitlens",
+                "tamasfe.even-better-toml",
+                "yzhang.markdown-all-in-one",
+                "ms-vscode.vscode-json",
+                "redhat.vscode-yaml",
+                "ms-python.black-formatter"
+            ]
+        }
+    },
+
+    "mounts": [
+        "source=${localWorkspaceFolder}/.cache,target=${containerWorkspaceFolder}/.cache,type=bind"
+    ],
+
+    "postCreateCommand": "uv sync --all-extras && uv run pre-commit install",
+    "postStartCommand": "uv run pre-commit autoupdate",
+
+    "forwardPorts": [8000, 8888, 6006, 50021],
+    "portsAttributes": {
+        "8000": {
+            "label": "Main Application",
+            "onAutoForward": "notify"
+        },
+        "8888": {
+            "label": "Jupyter",
+            "onAutoForward": "openBrowser"
+        },
+        "6006": {
+            "label": "TensorBoard",
+            "onAutoForward": "openBrowser"
+        },
+        "50021": {
+            "label": "VOICEVOX Engine",
+            "onAutoForward": "notify"
+        }
+    }
+}
