@@ -109,6 +109,8 @@ class HealthChecker:
 - **アバター**: VRoid Studio + VSeeFace
 - **配信**: OBS Studio + WebRTC
 - **監視**: Prometheus + Grafana
+- **パッケージマネージャー**: uv (10-100x faster than pip)
+- **コード品質**: ruff + mypy + pre-commit
 
 **Docker化による環境統一**
 

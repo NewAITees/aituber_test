@@ -10,54 +10,53 @@
 # uvのインストール（既にインストール済みの場合はスキップ）
 curl -LsSf https://astral.sh/uv/install.sh | sh
 
-# 仮想環境の作成と有効化
-uv venv
-source .venv/bin/activate
+# 依存関係のインストール（開発用ツールも含む）
+uv sync --all-extras --dev
 
-# 依存関係のインストール
-uv pip install -r requirements.txt
+# 開発用ツールのセットアップ
+uv run pre-commit install
 ```
 
 ### 2. 開発ツールのセットアップ
 
 ```bash
-# 開発用ツールのインストール
-uv pip install -r requirements-dev.txt
-
-# コードフォーマッターの設定
-black --config pyproject.toml .
+# コードフォーマットとリンターの実行
+uv run ruff format .
+uv run ruff check --fix .
 
 # 型チェックの実行
-mypy src/
+uv run mypy src/
+
+# テストの実行
+uv run pytest tests/
 ```
 
-## 依存パッケージの追加・インストール方法
+## 依存パッケージの管理
 
-uvでは、依存パッケージを一括でインストールするよりも、
-下記のように個別に追加・インストールすることを推奨します。
+このプロジェクトでは`uv`パッケージマネージャーを使用しています。依存関係は`pyproject.toml`で管理され、`uv.lock`ファイルでバージョンが固定されています。
+
+### 新しい依存関係の追加
 
 ```bash
-uv pip install ollama-python
-uv pip install transformers
-uv pip install torch
-uv pip install sounddevice
-uv pip install numpy
-uv pip install scipy
-uv pip install librosa==0.10.1
-uv pip install bpy
-uv pip install pytchat
-uv pip install websockets
-uv pip install requests
-uv pip install psutil
-uv pip install GPUtil
-uv pip install pytest
-uv pip install black
-uv pip install mypy
-uv pip install pydantic
+# 本番依存関係の追加
+uv add パッケージ名
+
+# 開発依存関係の追加
+uv add --dev パッケージ名
+
+# 特定バージョンの指定
+uv add パッケージ名==バージョン
 ```
 
-- requirements.txt/requirements-dev.txtは「参照用リスト」として活用してください。
-- パッケージ追加時は`uv pip install パッケージ名`で都度追加し、問題があれば個別に対処してください。
+### 依存関係の更新
+
+```bash
+# 全依存関係の更新
+uv lock --upgrade
+
+# 特定パッケージの更新
+uv lock --upgrade-package パッケージ名
+```
 
 ## アーキテクチャ
 
@@ -104,13 +103,38 @@ uv pip install pydantic
 
 ```bash
 # ユニットテストの実行
-pytest tests/
+uv run pytest tests/
 
 # カバレッジレポートの生成
-pytest --cov=src tests/
+uv run pytest --cov=src --cov-report=term-missing tests/
+
+# 特定のテストファイルの実行
+uv run pytest tests/test_llm.py
+
+# 特定のテストクラスの実行
+uv run pytest tests/test_llm.py::TestLocalLLM
 ```
 
-### 3. デプロイ
+### 3. コード品質チェック
+
+```bash
+# コードフォーマット
+uv run ruff format .
+
+# リンター実行
+uv run ruff check --fix .
+
+# 型チェック
+uv run mypy src/
+
+# セキュリティチェック
+uv run bandit -r src/
+
+# 依存関係の脆弱性チェック
+uv run safety check
+```
+
+### 4. デプロイ
 
 1. バージョン管理
 2. 依存関係の更新
@@ -186,5 +210,6 @@ pytest --cov=src tests/
 ## 参考資料
 
 - [技術ドキュメント](../technical_document.md)
+- [CLAUDE.md](../CLAUDE.md)
 - [API仕様書](./api.md)
 - [トラブルシューティングガイド](./troubleshooting.md)

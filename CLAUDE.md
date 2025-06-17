@@ -7,10 +7,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ### Environment Setup
 ```bash
 # Install dependencies using uv (preferred package manager)
-uv sync --all-extras
-
-# Development dependencies are automatically installed with --dev extras
-uv sync --dev
+uv sync --all-extras --dev
 
 # Activate virtual environment (auto-managed by uv)
 # No manual activation needed - uv run handles this automatically
@@ -46,10 +43,10 @@ uv run pre-commit install
 ./voicevox_engine-linux-cpu-0.14.4/run.sh
 
 # Start main application
-uv run python main.py
+uv run python src/main.py
 
 # Or run with specific Python interpreter
-uv run python src/main.py
+uv run python main.py
 ```
 
 ## Architecture Overview
@@ -61,6 +58,7 @@ This is a complete local AITuber system with 4 main components:
 - Async message processing with rate limiting (5-second intervals)
 - Component lifecycle management and error recovery
 - Real-time status monitoring
+- Configuration management via `config.json`
 
 ### 2. LLM Module (`src/llm/`)
 - **LocalLLM**: Ollama-based local language model integration
@@ -70,7 +68,7 @@ This is a complete local AITuber system with 4 main components:
 
 ### 3. TTS Module (`src/tts/`)
 - **LocalTTS**: VOICEVOX integration for Japanese text-to-speech
-- HTTP API communication with local VOICEVOX engine
+- HTTP API communication with local VOICEVOX engine (port 50021)
 - Voice parameter control (speed, pitch, volume, intonation)
 - Speaker selection and audio file output
 
@@ -151,3 +149,4 @@ This is a complete local AITuber system with 4 main components:
 - VRM standard compliance for cross-platform avatar compatibility
 - Designed for 24/7 operation with monitoring and error recovery
 - Japanese language support is primary focus (VOICEVOX TTS)
+- Configuration file (`config.json`) is required for system startup
